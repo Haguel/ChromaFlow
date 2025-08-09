@@ -1,0 +1,58 @@
+openapi: 3.0.2
+info:
+  title: ChromaFlow Job Ingestion Service API
+  description: Endpoint for submitting media processing task
+  version: 1.0.0
+
+tags:
+  - name: "Job Ingestion"
+    description: "Endpoint for submitting media processing tasks"
+
+paths:
+  /api/v1/jobs:
+    post:
+      tags:
+        - "Job Ingestion"
+      summary: Submit new media processing task
+      operationId: submitMediaProcessingTask
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                recipe:
+                  $ref: '#/components/schemas/RecipeDTO'
+                  description: JSON representation of the recipe object. Must conform to the Recipe schema.
+                file:
+                  type: string
+                  format: binary
+            encoding:
+              recipe:
+                contentType: application/json
+      responses:
+        '202':
+          description: Job accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobIdDTO'
+        '400':
+          description: "Bad Request"
+        '413':
+          description: "Payload Too Large"
+
+components:
+  schemas:
+    JobIdDTO:
+      type: object
+      properties:
+        jobId:
+          type: string
+    RecipeDTO:
+      type: object
+      properties:
+        operations:
+          type: object
+

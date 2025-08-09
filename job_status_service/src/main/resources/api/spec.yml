@@ -1,0 +1,49 @@
+openapi: 3.0.2
+info:
+  title: ChromaFlow Job Status Service API
+  description: Endpoint for getting task status
+  version: 1.0.0
+
+tags:
+  - name: "Job Status"
+    description: "Endpoint for getting tasks status"
+
+paths:
+  /api/v1/jobs/{jobId}:
+    get:
+      tags:
+        - "Job Status"
+      summary: Get task status and result
+      operationId: getJobById
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobDTO'
+        '404':
+          description: Not Found
+
+components:
+  schemas:
+    JobStatus:
+      type: object
+      properties:
+        status:
+          type: string
+    JobDTO:
+      type: object
+      properties:
+        jobId:
+          type: string
+        status:
+          $ref: '#/components/schemas/JobStatus'
+        resultUrl:
+          type: string
