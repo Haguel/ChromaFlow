@@ -50,9 +50,48 @@ components:
       properties:
         jobId:
           type: string
+    ResizeOperation:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Operation'
+      properties:
+        width:
+          type: integer
+        height:
+          type: integer
+    WatermarkOperation:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Operation'
+      properties:
+        text:
+          type: string
+        position:
+          type: string
+        size:
+          type: integer
+    GrayscaleOperation:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Operation'
+    Operation:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          type: string
+      discriminator:
+        propertyName: type
+        mapping:
+          resize: '#/components/schemas/ResizeOperation'
+          watermark: '#/components/schemas/WatermarkOperation'
+          grayscale: '#/components/schemas/GrayscaleOperation'
     RecipeDTO:
       type: object
       properties:
         operations:
-          type: object
+          type: array
+          items:
+            $ref: '#/components/schemas/Operation'
 
