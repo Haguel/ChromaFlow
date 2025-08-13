@@ -3,6 +3,7 @@ package dev.haguel.job_ingestion_service.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.haguel.job_ingestion_service.service.JobIngestionService;
+import dev.haguel.job_ingestion_service.test_util.Util;
 import dev.haguel.model.JobIdDTO;
 import dev.haguel.model.RecipeDTO;
 import io.restassured.RestAssured;
@@ -42,50 +43,23 @@ class JobIngestionControllerTest {
         @Autowired
         private MockMvc mockMvc;
 
-        @Autowired
-        private ObjectMapper objectMapper;
-
         @MockitoBean
         private JobIngestionService jobIngestionService;
 
-        MockMultipartFile multipartMediaFile = new MockMultipartFile(
-                "mediaFile",
-                "test.img",
-                MediaType.IMAGE_JPEG_VALUE,
-                "Hello World".getBytes()
-        );
-
-        RecipeDTO recipeDTO = new RecipeDTO();
 
         @BeforeEach
         void setup() {
             when(jobIngestionService
                     .ingestJob(ArgumentMatchers.any(RecipeDTO.class), ArgumentMatchers.any(MultipartFile.class)))
-                    .thenReturn(getJobIdDTOWithRandomUUID());
-        }
-
-        private MockMultipartFile getMultipartRecipeJson() throws JsonProcessingException {
-            byte[] recipeBytes = objectMapper.writeValueAsBytes(recipeDTO);
-            return new MockMultipartFile(
-                    "recipe",
-                    "",
-                    MediaType.APPLICATION_JSON_VALUE,
-                    recipeBytes
-            );
-        }
-
-        private JobIdDTO getJobIdDTOWithRandomUUID() {
-            JobIdDTO jobIdDTO = new JobIdDTO();
-            jobIdDTO.setJobId(UUID.randomUUID().toString());
-
-            return jobIdDTO;
+                    .thenReturn(Util.getJobIdDTOWithRandomUUID());
         }
 
         @Test
         void whenSubmitMediaProcessingTaskWithValidData_thenReturn202() throws Exception {
+
             mockMvc.perform(multipart("/api/v1/jobs")
-                    .file(multipartMediaFile)
-                    .file(getMultipartRecipeJson()))
+                    .file(Util.getBlankMockMultipartFileWithName("mediaFile"))
+                    .file(Util.getBlankMockMultipartRecipeJsonWithName("recipe")))
                     .andExpect(status().isAccepted())
                     .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                     .andExpect(jsonPath("$.jobId").exists())
@@ -98,14 +72,14 @@ class JobIngestionControllerTest {
         @Test
         void whenSubmitMediaProcessingTaskWithoutFile_thenReturn400() throws Exception {
             mockMvc.perform(multipart("/api/v1/jobs")
-                            .file(getMultipartRecipeJson()))
+                            .file(Util.getBlankMockMultipartRecipeJsonWithName("recipe")))
                     .andExpect(status().isBadRequest());
         }
 
         @Test
         void whenSubmitMediaProcessingTaskWithoutRecipeDTO_thenReturn400() throws Exception {
             mockMvc.perform(multipart("/api/v1/jobs")
-                            .file(multipartMediaFile))
+                            .file(Util.getBlankMockMultipartFileWithName("mediaFile")))
                     .andExpect(status().isBadRequest());
         }
     }
