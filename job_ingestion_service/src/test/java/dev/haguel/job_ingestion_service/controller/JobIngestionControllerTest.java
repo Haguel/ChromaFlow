@@ -2,11 +2,14 @@ package dev.haguel.job_ingestion_service.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.haguel.job_ingestion_service.service.JobIngestionService;
+import dev.haguel.model.JobIdDTO;
 import dev.haguel.model.RecipeDTO;
 import io.restassured.RestAssured;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -15,11 +18,17 @@ import org.springframework.http.MediaType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.multipart.MultipartFile;
 
+
+import java.util.UUID;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -36,14 +45,24 @@ class JobIngestionControllerTest {
         @Autowired
         private ObjectMapper objectMapper;
 
+        @MockitoBean
+        private JobIngestionService jobIngestionService;
+
         MockMultipartFile multipartMediaFile = new MockMultipartFile(
-                "file",
+                "mediaFile",
                 "test.img",
                 MediaType.IMAGE_JPEG_VALUE,
                 "Hello World".getBytes()
         );
 
         RecipeDTO recipeDTO = new RecipeDTO();
+
+        @BeforeEach
+        void setup() {
+            when(jobIngestionService
+                    .ingestJob(ArgumentMatchers.any(RecipeDTO.class), ArgumentMatchers.any(MultipartFile.class)))
+                    .thenReturn(getJobIdDTOWithRandomUUID());
+        }
 
         private MockMultipartFile getMultipartRecipeJson() throws JsonProcessingException {
             byte[] recipeBytes = objectMapper.writeValueAsBytes(recipeDTO);
@@ -55,6 +74,13 @@ class JobIngestionControllerTest {
             );
         }
 
+        private JobIdDTO getJobIdDTOWithRandomUUID() {
+            JobIdDTO jobIdDTO = new JobIdDTO();
+            jobIdDTO.setJobId(UUID.randomUUID().toString());
+
+            return jobIdDTO;
+        }
+
         @Test
         void whenSubmitMediaProcessingTaskWithValidData_thenReturn202() throws Exception {
             mockMvc.perform(multipart("/api/v1/jobs")
@@ -64,6 +90,9 @@ class JobIngestionControllerTest {
                     .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                     .andExpect(jsonPath("$.jobId").exists())
                     .andExpect(jsonPath("$.jobId",is(not(emptyString()))));
+
+            verify(jobIngestionService)
+                    .ingestJob(ArgumentMatchers.any(RecipeDTO.class), ArgumentMatchers.any(MultipartFile.class));
         }
 
         @Test
@@ -81,6 +110,7 @@ class JobIngestionControllerTest {
         }
     }
 
+    // MockMvc can't test request size, that's why made RestAssured test
     @Nested
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     class JobIngestionControllerRestAssuredTest {
@@ -119,7 +149,7 @@ class JobIngestionControllerTest {
             int fileSize = getMaxFileSizeInBytes() + 1;
 
             given()
-                    .multiPart("file", "file", createAndGetBytesWithSize(fileSize))
+                    .multiPart("mediaFile", "mediaFile", createAndGetBytesWithSize(fileSize))
                     .when()
                     .post("/jobs")
                     .then()

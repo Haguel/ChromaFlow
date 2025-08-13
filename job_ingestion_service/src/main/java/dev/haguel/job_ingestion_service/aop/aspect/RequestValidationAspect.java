@@ -15,17 +15,17 @@ public class RequestValidationAspect {
     @Around("@annotation(dev.haguel.job_ingestion_service.aop.ValidateMediaProcessingRequest)")
     public Object validateRequest(ProceedingJoinPoint proceedingJoinPoint) throws Throwable {
         RecipeDTO recipeDTO = null;
-        MultipartFile file = null;
+        MultipartFile mediaFile = null;
 
         for (Object arg : proceedingJoinPoint.getArgs()) {
             if (arg instanceof RecipeDTO) {
                 recipeDTO = (RecipeDTO) arg;
             } else if (arg instanceof MultipartFile) {
-                file = (MultipartFile) arg;
+                mediaFile = (MultipartFile) arg;
             }
         }
 
-        if (file == null || file.isEmpty()) {
+        if (mediaFile == null || mediaFile.isEmpty()) {
             return new ResponseEntity<>(HttpStatusCode.valueOf(400));
         }
         if (recipeDTO == null) {
