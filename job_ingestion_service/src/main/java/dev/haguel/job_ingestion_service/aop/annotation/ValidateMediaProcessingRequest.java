@@ -1,4 +1,4 @@
-package dev.haguel.job_ingestion_service.aop;
+package dev.haguel.job_ingestion_service.aop.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

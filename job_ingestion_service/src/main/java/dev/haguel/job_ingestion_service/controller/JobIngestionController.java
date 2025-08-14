@@ -1,7 +1,7 @@
 package dev.haguel.job_ingestion_service.controller;
 
 import dev.haguel.api.JobIngestionApi;
-import dev.haguel.job_ingestion_service.aop.ValidateMediaProcessingRequest;
+import dev.haguel.job_ingestion_service.aop.annotation.ValidateMediaProcessingRequest;
 import dev.haguel.job_ingestion_service.service.JobIngestionService;
 import dev.haguel.model.JobIdDTO;
 import dev.haguel.model.RecipeDTO;

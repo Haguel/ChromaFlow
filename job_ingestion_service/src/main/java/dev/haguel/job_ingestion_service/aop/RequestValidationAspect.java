@@ -1,4 +1,4 @@
-package dev.haguel.job_ingestion_service.aop.aspect;
+package dev.haguel.job_ingestion_service.aop;
 
 import dev.haguel.model.RecipeDTO;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -12,7 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Aspect
 @Component
 public class RequestValidationAspect {
-    @Around("@annotation(dev.haguel.job_ingestion_service.aop.ValidateMediaProcessingRequest)")
+    @Around("@annotation(dev.haguel.job_ingestion_service.aop.annotation.ValidateMediaProcessingRequest)")
     public Object validateRequest(ProceedingJoinPoint proceedingJoinPoint) throws Throwable {
         RecipeDTO recipeDTO = null;
         MultipartFile mediaFile = null;
