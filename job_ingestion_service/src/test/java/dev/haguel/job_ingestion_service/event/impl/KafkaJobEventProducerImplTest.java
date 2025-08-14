@@ -45,7 +45,7 @@ class KafkaJobEventProducerImplTest {
     private String jobSubmittedTopic;
 
     @Autowired
-    private JobEventProducer jobEventProducer;
+    private KafkaJobEventProducerImpl jobEventProducer;
 
     private KafkaConsumer<String, String> kafkaConsumer;
 
