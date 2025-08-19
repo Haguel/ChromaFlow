@@ -1,9 +1,11 @@
 package dev.haguel.media_processing_worker.media_processing_strategy.impl;
 
 import dev.haguel.media_processing_worker.media_processing_strategy.MediaProcessingStrategy;
+import org.springframework.stereotype.Component;
 
 import java.awt.image.BufferedImage;
 
+@Component
 public class GrayscaleMediaProcessingStrategyImpl implements MediaProcessingStrategy {
     @Override
     public BufferedImage apply(BufferedImage sourceImage) {

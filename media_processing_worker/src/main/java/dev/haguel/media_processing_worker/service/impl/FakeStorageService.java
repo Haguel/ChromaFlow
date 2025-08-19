@@ -1,7 +1,7 @@
-package service.impl;
+package dev.haguel.media_processing_worker.service.impl;
 
 import org.springframework.stereotype.Service;
-import service.StorageService;
+import dev.haguel.media_processing_worker.service.StorageService;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;

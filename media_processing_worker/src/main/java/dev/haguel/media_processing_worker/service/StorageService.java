@@ -1,4 +1,4 @@
-package service;
+package dev.haguel.media_processing_worker.service;
 
 import java.awt.image.BufferedImage;
 
