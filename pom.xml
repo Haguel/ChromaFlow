@@ -10,11 +10,11 @@
     </parent>
 
     <modules>
-        <module>storage_abstraction_service</module>
+<!--        <module>storage_abstraction_service</module>-->
         <module>media_processing_worker</module>
-        <module>gateway</module>
+<!--        <module>gateway</module>-->
         <module>job_ingestion_service</module>
-        <module>job_status_service</module>
+<!--        <module>job_status_service</module>-->
         <module>shared</module>
     </modules>
 

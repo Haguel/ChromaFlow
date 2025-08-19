@@ -1,0 +1,61 @@
+services:
+  # Infrastructure Services
+  kafka:
+    # ... (kafka configuration remains the same) ...
+    image: bitnami/kafka:latest
+    ports:
+      - "9092:9092"
+    environment:
+      - KAFKA_CFG_NODE_ID=1
+      - KAFKA_CFG_PROCESS_ROLES=broker,controller
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      - ALLOW_PLAINTEXT_LISTENER=yes
+    networks:
+      - chromaflow-net
+    healthcheck:
+      test: ["CMD", "kafka-topics.sh", "--bootstrap-server", "localhost:9092", "--list"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # Application Microservices
+  job-ingestion-service:
+    build:
+      context: .
+      dockerfile: Dockerfile  # All services point to the SAME Dockerfile
+      args:
+        - MODULE_NAME=job_ingestion_service
+        - EXPOSE_PORT=8081
+    ports:
+      - "8081:8081"
+    networks:
+      - chromaflow-net
+    depends_on:
+      kafka:
+        condition: service_healthy
+
+  media-processing-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - MODULE_NAME=media_processing_worker
+        - EXPOSE_PORT=8082
+    ports:
+      - "8082:8082"
+    networks:
+      - chromaflow-net
+    depends_on:
+      kafka:
+        condition: service_healthy
+
+  # Add other services here following the same pattern...
+
+networks:
+  chromaflow-net:
+    driver: bridge
