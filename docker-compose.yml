@@ -1,7 +1,5 @@
 services:
-  # Infrastructure Services
   kafka:
-    # ... (kafka configuration remains the same) ...
     image: bitnami/kafka:latest
     ports:
       - "9092:9092"
@@ -14,6 +12,9 @@ services:
       - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
       - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
       - ALLOW_PLAINTEXT_LISTENER=yes
+      - BITNAMI_DEBUG=false
+    volumes:
+      - ./log4j.properties:/opt/bitnami/kafka/config/log4j.properties:ro
     networks:
       - chromaflow-net
     healthcheck:
@@ -23,11 +24,10 @@ services:
       retries: 5
       start_period: 30s
 
-  # Application Microservices
   job-ingestion-service:
     build:
       context: .
-      dockerfile: Dockerfile  # All services point to the SAME Dockerfile
+      dockerfile: Dockerfile
       args:
         - MODULE_NAME=job_ingestion_service
         - EXPOSE_PORT=8081
@@ -53,8 +53,6 @@ services:
     depends_on:
       kafka:
         condition: service_healthy
-
-  # Add other services here following the same pattern...
 
 networks:
   chromaflow-net:

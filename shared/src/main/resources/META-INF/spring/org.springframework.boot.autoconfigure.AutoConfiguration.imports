@@ -1,0 +1,8 @@
+# This file registers all auto-configuration classes for the shared-aop module.
+# It's read by Spring Boot when any application includes this module as a dependency.
+
+# Main auto-configuration for enabling the logging aspect's component scan.
+dev.haguel.shared.config.SharedAutoConfig
+
+# You could add other auto-configurations for this module below in the future.
+# com.example.another.AnotherAutoConfiguration

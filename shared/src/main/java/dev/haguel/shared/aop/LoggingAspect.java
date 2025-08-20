@@ -13,8 +13,8 @@ import java.util.Arrays;
 public class LoggingAspect {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    @Pointcut("within(@org.springframework.stereotype.Service *)" +
-            " || within(@org.springframework.web.bind.annotation.RestController *)")
+    @Pointcut("@target(org.springframework.stereotype.Service)" +
+            " || @target(org.springframework.web.bind.annotation.RestController)")
     public void springBeanPointcut() { }
 
     @Around("springBeanPointcut()")
